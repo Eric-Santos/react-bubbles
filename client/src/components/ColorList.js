@@ -1,30 +1,44 @@
-import React, { useState } from "react";
-import axios from "axios";
+import React, { useState } from 'react';
+import AxiosWithAuth from './AxiosWithAuth';
 
 const initialColor = {
-  color: "",
-  code: { hex: "" }
+  color: '',
+  code: { hex: '' }
 };
 
-const ColorList = ({ colors, updateColors }) => {
+const ColorList = ({ colors, updateColors, deleteColorList, editColor }) => {
   console.log(colors);
   const [editing, setEditing] = useState(false);
   const [colorToEdit, setColorToEdit] = useState(initialColor);
 
-  const editColor = color => {
+  const editColors = color => {
     setEditing(true);
     setColorToEdit(color);
   };
 
+  // Make a put request to save your updated color
+  // think about where will you get the id from...
+  // where is is saved right now?
+
   const saveEdit = e => {
     e.preventDefault();
-    // Make a put request to save your updated color
-    // think about where will you get the id from...
-    // where is is saved right now?
+    AxiosWithAuth()
+      .put(`/colors/${colorToEdit.id}`, colorToEdit)
+      .then(res => {
+        editColors(res.data);
+        setColorToEdit(initialColor);
+      })
+      .catch(err => console.log(err));
   };
 
   const deleteColor = color => {
     // make a delete request to delete this color
+    AxiosWithAuth()
+      .delete(`/colors/${color.id}`)
+      .then(res => {
+        deleteColorList(res.data);
+      })
+      .catch(err => console.log(err));
   };
 
   return (
@@ -34,13 +48,15 @@ const ColorList = ({ colors, updateColors }) => {
         {colors.map(color => (
           <li key={color.color} onClick={() => editColor(color)}>
             <span>
-              <span className="delete" onClick={e => {
-                    e.stopPropagation();
-                    deleteColor(color)
-                  }
-                }>
-                  x
-              </span>{" "}
+              <span
+                className="delete"
+                onClick={e => {
+                  e.stopPropagation();
+                  deleteColor(color);
+                }}
+              >
+                x
+              </span>{' '}
               {color.color}
             </span>
             <div

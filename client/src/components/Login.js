@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import AxiosWithAuth from '../utils/AxiosWithAuth.js';
+import AxiosWithAuth from './AxiosWithAuth';
 
 const Login = props => {
   // make a post request to retrieve a token from the api
   // when you have handled the token, navigate to the BubblePage route
-  console.log('Props from login', props);
+  console.log(props);
 
-  const submitForm = event => {
+  const handleSubmit = event => {
     event.preventDefault();
     AxiosWithAuth()
       .post('/login', userLoginInfo)
@@ -34,22 +34,31 @@ const Login = props => {
   return (
     <div className="formContainer">
       <div className="formBox">
-        <form onSubmit={submitForm}>
-          <input
-            name="username"
-            type="text"
-            value={userLoginInfo.username}
-            onChange={handleChanges}
-            placeholder="Username"
-          />
-          <input
-            name="password"
-            type="password"
-            value={userLoginInfo.password}
-            onChange={handleChanges}
-            placeholder="Password"
-          />
-          <button hidden />
+        <form className="ui form" onSubmit={handleSubmit}>
+          <div className="field">
+            <label>Username</label>
+            <input
+              name="username"
+              type="text"
+              value={userLoginInfo.username}
+              onChange={handleChanges}
+              placeholder="Username"
+            />
+          </div>
+          <div className="field">
+            <label>Password</label>
+            <input
+              name="password"
+              type="password"
+              value={userLoginInfo.password}
+              onChange={handleChanges}
+              placeholder="Password"
+            />
+          </div>
+
+          <button type="submit" className="ui button">
+            Submit
+          </button>
         </form>
       </div>
     </div>
