@@ -6,7 +6,7 @@ const initialColor = {
   code: { hex: '' }
 };
 
-const ColorList = ({ colors, updateColors, deleteColorList, editColor }) => {
+const ColorList = ({ colors, updateColors }) => {
   console.log(colors);
   const [editing, setEditing] = useState(false);
   const [colorToEdit, setColorToEdit] = useState(initialColor);
@@ -20,11 +20,12 @@ const ColorList = ({ colors, updateColors, deleteColorList, editColor }) => {
   // think about where will you get the id from...
   // where is is saved right now?
 
-  const saveEdit = e => {
+  const saveEdit = (e, props) => {
     e.preventDefault();
     AxiosWithAuth()
       .put(`/colors/${colorToEdit.id}`, colorToEdit)
       .then(res => {
+        console.log('post resolve data', res.data);
         editColors(res.data);
         setColorToEdit(initialColor);
       })
@@ -36,7 +37,8 @@ const ColorList = ({ colors, updateColors, deleteColorList, editColor }) => {
     AxiosWithAuth()
       .delete(`/colors/${color.id}`)
       .then(res => {
-        deleteColorList(res.data);
+        console.log('delete request data', res.data);
+        updateColors(res.data);
       })
       .catch(err => console.log(err));
   };
@@ -46,7 +48,7 @@ const ColorList = ({ colors, updateColors, deleteColorList, editColor }) => {
       <p>colors</p>
       <ul>
         {colors.map(color => (
-          <li key={color.color} onClick={() => editColor(color)}>
+          <li key={color.color} onClick={() => editColors(color)}>
             <span>
               <span
                 className="delete"
