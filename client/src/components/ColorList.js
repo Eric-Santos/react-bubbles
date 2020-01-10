@@ -10,6 +10,7 @@ const ColorList = ({ colors, updateColors }) => {
   console.log(colors);
   const [editing, setEditing] = useState(false);
   const [colorToEdit, setColorToEdit] = useState(initialColor);
+  const [colorToAdd, setColorToAdd] = useState(initialColor);
 
   const editColors = color => {
     setEditing(true);
@@ -55,6 +56,24 @@ const ColorList = ({ colors, updateColors }) => {
         updateColors(res.data);
       })
       .catch(err => console.log(err));
+  };
+
+  const addColor = e => {
+    e.preventDefault();
+    AxiosWithAuth()
+      .post('/colors', colorToAdd)
+      .then()
+      .catch(err => {
+        console.log(err);
+      });
+    AxiosWithAuth()
+      .get('/colors')
+      .then(res => {
+        updateColors(res.data);
+      })
+      .catch(err => {
+        console.log(err);
+      });
   };
 
   return (
@@ -112,6 +131,34 @@ const ColorList = ({ colors, updateColors }) => {
           </div>
         </form>
       )}
+
+      <form onSubmit={addColor}>
+        <legend>Add Color</legend>
+        <label>
+          color name:
+          <input
+            onChange={e =>
+              setColorToAdd({ ...colorToAdd, color: e.target.value })
+            }
+            value={colorToAdd.color}
+          />
+        </label>
+        <label>
+          hex code:
+          <input
+            onChange={e =>
+              setColorToAdd({
+                ...colorToAdd,
+                code: { hex: e.target.value }
+              })
+            }
+            value={colorToAdd.code.hex}
+          />
+        </label>
+        <div className="button-row">
+          <button type="submit">Add</button>
+        </div>
+      </form>
       <div className="spacer" />
       {/* stretch - build another form here to add a color */}
     </div>
