@@ -1,30 +1,79 @@
-import React, { useState } from "react";
-import axios from "axios";
+import React, { useState } from 'react';
+import AxiosWithAuth from './AxiosWithAuth';
 
 const initialColor = {
-  color: "",
-  code: { hex: "" }
+  color: '',
+  code: { hex: '' }
 };
 
 const ColorList = ({ colors, updateColors }) => {
   console.log(colors);
   const [editing, setEditing] = useState(false);
   const [colorToEdit, setColorToEdit] = useState(initialColor);
+  const [colorToAdd, setColorToAdd] = useState(initialColor);
 
-  const editColor = color => {
+  const editColors = color => {
     setEditing(true);
     setColorToEdit(color);
   };
 
+  // Make a put request to save your updated color
+  // think about where will you get the id from...
+  // where is is saved right now?
+
   const saveEdit = e => {
     e.preventDefault();
-    // Make a put request to save your updated color
-    // think about where will you get the id from...
-    // where is is saved right now?
+
+    updateColors(
+      colors.map(color => {
+        if (color.id === colorToEdit.id) {
+          return colorToEdit;
+        } else {
+          return color;
+        }
+      })
+    );
+
+    AxiosWithAuth()
+      .put(`/colors/${colorToEdit.id}`, colorToEdit)
+      .then(res => {
+        console.log('post resolve data', res.data);
+        // editColors(res.data);
+        // setColorToEdit(initialColor);
+      })
+      .catch(err => console.log(err));
   };
 
   const deleteColor = color => {
     // make a delete request to delete this color
+
+    updateColors(colors.filter(item => item.id !== color.id));
+
+    AxiosWithAuth()
+      .delete(`api/colors/${color.id}`)
+      .then(res => {
+        console.log('delete request ID', res.data);
+        updateColors(res.data);
+      })
+      .catch(err => console.log(err));
+  };
+
+  const addColor = e => {
+    e.preventDefault();
+    AxiosWithAuth()
+      .post('/colors', colorToAdd)
+      .then()
+      .catch(err => {
+        console.log(err);
+      });
+    AxiosWithAuth()
+      .get('/colors')
+      .then(res => {
+        updateColors(res.data);
+      })
+      .catch(err => {
+        console.log(err);
+      });
   };
 
   return (
@@ -32,15 +81,17 @@ const ColorList = ({ colors, updateColors }) => {
       <p>colors</p>
       <ul>
         {colors.map(color => (
-          <li key={color.color} onClick={() => editColor(color)}>
+          <li key={color.color} onClick={() => editColors(color)}>
             <span>
-              <span className="delete" onClick={e => {
-                    e.stopPropagation();
-                    deleteColor(color)
-                  }
-                }>
-                  x
-              </span>{" "}
+              <span
+                className="delete"
+                onClick={e => {
+                  e.stopPropagation();
+                  deleteColor(color);
+                }}
+              >
+                x
+              </span>{' '}
               {color.color}
             </span>
             <div
@@ -80,6 +131,34 @@ const ColorList = ({ colors, updateColors }) => {
           </div>
         </form>
       )}
+
+      <form onSubmit={addColor}>
+        <legend>Add Color</legend>
+        <label>
+          color name:
+          <input
+            onChange={e =>
+              setColorToAdd({ ...colorToAdd, color: e.target.value })
+            }
+            value={colorToAdd.color}
+          />
+        </label>
+        <label>
+          hex code:
+          <input
+            onChange={e =>
+              setColorToAdd({
+                ...colorToAdd,
+                code: { hex: e.target.value }
+              })
+            }
+            value={colorToAdd.code.hex}
+          />
+        </label>
+        <div className="button-row">
+          <button type="submit">Add</button>
+        </div>
+      </form>
       <div className="spacer" />
       {/* stretch - build another form here to add a color */}
     </div>
